@@ -1,0 +1,43 @@
+<div class="w-auto text-lg bg-white">
+    <h2 mat-dialog-title>Event Details</h2>
+    <div mat-dialog-content [formGroup]="form">
+        <div class="flex flex-col gap-1">
+            <div class="flex gap-1">
+                <mat-form-field>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="datePicker" formControlName="date">
+                    <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #datePicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Start Time</mat-label>
+                    <input matInput [matTimepicker]="startDatePicker" formControlName="startTime">
+                    <mat-timepicker-toggle matIconSuffix [for]="startDatePicker" />
+                    <mat-timepicker #startDatePicker />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>End Time</mat-label>
+                    <input matInput [matTimepicker]="endDatePicker" formControlName="endTime">
+                    <mat-timepicker-toggle matIconSuffix [for]="endDatePicker" />
+                    <mat-timepicker #endDatePicker />
+                </mat-form-field>
+            </div>
+            <mat-form-field>
+                <mat-label>Title</mat-label>
+                <input name="title" type="text" matInput formControlName="title"
+                    placeholder="Enter a title for the event">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Description</mat-label>
+                <textarea name="description" matInput formControlName="description"
+                    placeholder="Enter an optional event description"></textarea>
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="flex gap-2" mat-dialog-actions>
+        <button type="button" app-button (click)="handleCancelClick()">Close</button>
+        <button type="button" app-button (click)="handleDeleteClick()">Delete</button>
+        <button type="button" app-button buttonType="primary" (click)="handleSaveClick()"
+            [disabled]="!form.valid">Save</button>
+    </div>
+</div>

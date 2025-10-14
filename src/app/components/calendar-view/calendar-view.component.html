@@ -1,0 +1,20 @@
+<div class="relative grid border border-gray-300 border-solid divide-y divide-gray-300 calendar ">
+    <!-- Ticks -->
+    @for (hour of hours(); track $index) {
+    <div class="relative h-10">
+        <!-- Tick Label -->
+        <span class="absolute px-2 text-sm transform -translate-y-1/2 bg-white">{{ hour | date:'h a'}}</span>
+    </div>
+    }
+    @for (event of events(); track $index) {
+    <button type="button" tabindex="0"
+        class="text-left absolute top-0 z-auto flex flex-col w-full gap-1 px-2 text-sm text-black hover:!z-50 left-12 outline outline-2 outline-offset-0 focus:outline-gray-800 hover:outline-gray-800 min-h-4"
+        [class]="getCSSClasses(events(), event, $index)" [style.height]="`${getEventHeightPercent(event)}%`"
+        [style.top]="`${getEventTopPercent(event)}%`" (click)="handleEditEvent(event)">
+        <div class="w-full overflow-hidden font-medium whitespace-nowrap text-ellipsis">
+            {{ formatEventLabel(event) }}
+        </div>
+        <div>{{ formatEventTime(event) }}</div>
+    </button>
+    }
+</div>

@@ -1,0 +1,7 @@
+<button class="flex items-center justify-center p-2 text-white bg-gray-700 hover:bg-gray-900 focus:outline-gray-800"
+    [type]="type()" [ngClass]="{
+        'rounded-sm': !rounded(),
+        'rounded-full': rounded()
+    }">
+    <ng-content></ng-content>
+</button>

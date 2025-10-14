@@ -1,0 +1,25 @@
+<div class="z-auto flex flex-col min-h-screen p-2">
+  <header class="sticky top-0 z-50 flex items-center gap-3 py-1 bg-white">
+    <h1 class="text-xl font-semibold">Daily Event Scheduler</h1>
+    <!-- Date Nav -->
+    <div class="flex gap-1">
+      <button type="button" app-button [rounded]="true" (click)="handlePrevDayClick()"
+        aria-label="Go to Previous Day">&lt;</button>
+      <button type="button" app-button [rounded]="true" (click)="handleNextDayClick()"
+        aria-label="Go to Next Day">&gt;</button>
+    </div>
+    <!-- Active Date -->
+    <div class="flex items-center font-semibold">
+      <input matInput [matDatepicker]="datePicker" [(ngModel)]="activeDate" readonly class="w-24">
+      <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+    </div>
+    <button type="button" app-button [rounded]="true" (click)="handleAddClick()" aria-label="Add Event">+</button>
+  </header>
+  <main class="flex-grow mt-4">
+    <!-- Daily Calendar View -->
+    <app-calendar-view [date]="activeDate()" [events]="activeEvents()" (eventSelected)="handleEventSelected($event)">
+    </app-calendar-view>
+  </main>
+  <router-outlet />
+</div>
