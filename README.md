@@ -2,33 +2,26 @@
 
 The **Event Scheduler** is an application for creating and editing events via a calendar view interface.
 
+## Design and Architecture
+
 This application is built with Angular 19 for the front end, NGXS for State Management, and Tailwind CSS for styling utilities. This application is segmented into different folders to narrow their usage, i.e., `/models` for defining reuseable application and service models, `/state` for containing shared application State, `/components` for rendering custom components.
 
 In additional, this application uses Angular Material, which uses Angular CDK, lending to built in accessible features for compliant UI navigation.
 
-For managing larger application, this layout would be further scoped into features for better organization:
+### Angular (v19)
 
-- `/auth`
-  - `/state`
-  - `/services`
-  - `/utils`
-  - `/models`
-  - `/components`
+A recent (v19) version of Angular was used as it provides less boilerplate, cleaner standalone logic, and improved performance. Some rationales include:
 
-## Architecture
-
-### Defaults
-
-By default:
-
-- The calendar view will default to the current day.
-- There are no events in the mocked events list.
-- Adding a new event will default to the current hour on the selected date.
+- **Standalone**: With _standalone_ components as the default, components are loaded (imported) as needed, leading to easier to manage dependencies and tree shaking for builds.
+- **Signals**: _input_ and _computed_ signals lead to drier, more readable (less verbose) code. In addition, this will ensure the DOM is only updated on value changes.
+- **Control Flow**: Easier to manage complex nesting of controls with better indentation and utility variables.
+- **Schematics**: These enable easy scaffolding features through scripting to optimize required setup for components, services.
 
 ### State - `/state`
 
 State is managed via the NGXS library:
 
+- Simplified state management through small state hooks.
 - The source of truth for the application data, removing side-effects (i.e., state mutations), stale data.
 - Clients will always be working with the latest, unified data.
 - Application updates between the View and Backend are handles via dispatching state Actions.
@@ -84,6 +77,29 @@ This componentThis component handles reused button styles:
 
 - Minimize boilerplate styles across the application
 - Abstract rendering of buttons based on various "types" (i.e., rounded, primary).
+
+### Defaults
+
+Default:
+
+- The calendar view will default to today.
+- The calendar will default to adding a few mocked events for today.
+- Adding a new event will default to the current hour on the selected date.
+
+### Tradeoffs
+
+- Utilizing Angular's Material components enables rapid prototyping, including built in accessibility features. However, there's often a need for stronger control of formatting (styling) and functionality that would require a custom component.
+- Tailwind enables complex component composition, however, there are cases where reuseable classes would be better suited to avoid repeated functionality.
+- NGXS enables simplified state hooks, though there needs to be careful attention paid to state mutations outside of the Store. This is where something like `immerjs` would aid in tidying that logic.
+
+## Resources
+
+- Angular Docs (v19) - https://v19.angular.dev/overview/
+- Tailwind Docs (v3) - https://v3.tailwindcss.com/docs/
+- NGXS Setup - https://www.ngxs.io/
+- Contrast Checker - https://webaim.org/resources/contrastchecker/
+- WCAG best practices - https://www.w3.org/WAI/ARIA/apg/patterns/
+- Google Calendar (for usability ideas) - https://calendar.google.com/
 
 ## Local Development
 

@@ -1,9 +1,27 @@
 import { Injectable } from '@angular/core';
 import { EventDataModel, EventDetailModel } from '../../models/event-models';
-import { fromServiceModel, toServiceModel } from '../../utils/event-utils';
+import {
+  createEvent,
+  fromServiceModel,
+  toServiceModel,
+} from '../../utils/event-utils';
+
+function mockDate(offsetHours: number): EventDataModel {
+  const now = new Date();
+  const nextHour = Math.max(0, now.getHours() + offsetHours);
+  now.setHours(nextHour);
+  return {
+    ...toServiceModel(createEvent(now)),
+    title: `Event ${offsetHours} hours`,
+  };
+}
 
 /** Mocked backend store for event CRUD operations. */
-const mockEvents: EventDataModel[] = [];
+const mockEvents: EventDataModel[] = [
+  // default events
+  mockDate(-2),
+  mockDate(2),
+];
 
 /**
  * REST based services for managing event data interactions.

@@ -12,7 +12,7 @@
                 <mat-form-field>
                     <mat-label>Start Time</mat-label>
                     <input matInput [matTimepicker]="startDatePicker" formControlName="startTime">
-                    <mat-timepicker-toggle matIconSuffix [for]="startDatePicker" />
+                    <mat-timepicker-toggle matIcon Suffix [for]="startDatePicker" />
                     <mat-timepicker #startDatePicker />
                 </mat-form-field>
                 <mat-form-field>
@@ -35,9 +35,9 @@
         </div>
     </div>
     <div class="flex gap-2" mat-dialog-actions>
-        <button type="button" app-button (click)="handleCancelClick()">Close</button>
-        <button type="button" app-button (click)="handleDeleteClick()">Delete</button>
-        <button type="button" app-button buttonType="primary" (click)="handleSaveClick()"
-            [disabled]="!form.valid">Save</button>
+        <button type="button" app-button (click)="handleDeleteClick()" aria-label="Delete this event">Delete</button>
+        <button type="button" app-button (click)="handleCancelClick()" aria-label="Close dialog">Close</button>
+        <button type="button" app-button buttonType="primary" (click)="handleSaveClick()" [disabled]="!form.valid"
+            aria-label="Save this event">Save</button>
     </div>
 </div>

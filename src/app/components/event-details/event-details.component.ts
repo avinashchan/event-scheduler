@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, DestroyRef, Inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -19,7 +19,8 @@ import { MatInputModule } from '@angular/material/input';
 import { ButtonComponent } from '../button/button.component';
 import { Store } from '@ngxs/store';
 import { DeleteEvent, UpdateEvent } from '../../state/app.actions';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface EventDetailForm {
   id: FormControl<string>;
@@ -55,6 +56,7 @@ export class EventDetailsComponent {
   constructor(
     private store: Store,
     private dialogRef: MatDialogRef<EventDetailsComponent>,
+    private destroyRef: DestroyRef,
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) private data: EventDialogData
   ) {
@@ -70,6 +72,18 @@ export class EventDetailsComponent {
       title: this.fb.nonNullable.control(title),
       description: this.fb.nonNullable.control(description),
     });
+
+    // ensure end time always after start time
+    this.form.controls.startTime.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((startTime) => {
+        const endTimeControl = this.form.controls.endTime;
+        if (endTimeControl.value <= startTime) {
+          const endTime = new Date(startTime);
+          endTime.setHours(endTime.getHours() + 1);
+          endTimeControl.setValue(endTime);
+        }
+      });
   }
 
   handleSaveClick() {
@@ -77,14 +91,18 @@ export class EventDetailsComponent {
   }
 
   handleDeleteClick() {
-    this.delete().then(() => this.close());
+    this.delete().then((deleted) => {
+      if (deleted) {
+        this.close();
+      }
+    });
   }
 
   handleCancelClick() {
     this.close();
   }
 
-  save() {
+  async save() {
     const { id, date, startTime, endTime, title, description } =
       this.form.getRawValue();
 
@@ -101,10 +119,16 @@ export class EventDetailsComponent {
     return firstValueFrom(this.store.dispatch(new UpdateEvent(updatedEvent)));
   }
 
-  delete() {
-    return firstValueFrom(
-      this.store.dispatch(new DeleteEvent(this.data.event.id))
+  async delete(): Promise<boolean> {
+    const doDelete = confirm(
+      'Are you sure you would like to delete this event?'
     );
+    if (doDelete) {
+      return firstValueFrom(
+        this.store.dispatch(new DeleteEvent(this.data.event.id))
+      ).then(() => true);
+    }
+    return false;
   }
 
   close() {
