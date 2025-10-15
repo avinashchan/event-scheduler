@@ -50,6 +50,7 @@ export class EventService {
   async getEvents(startDate: Date, endDate: Date): Promise<EventDetailModel[]> {
     return (
       mockEvents
+        .sort((dateA, dateB) => dateA.startTime.localeCompare(dateB.startTime))
         // map server models -> app model
         .map((event) => fromServiceModel(event))
         // filter events by date
