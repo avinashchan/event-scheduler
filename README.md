@@ -2,6 +2,32 @@
 
 The **Event Scheduler** is an application for creating and editing events via a calendar view interface.
 
+## Run and deploy Locally
+
+To build and run the application locally, ensure local dependencies are installed, run:
+
+```bash
+npm install
+```
+
+Start the local development server, run:
+
+```bash
+ng serve
+```
+
+Once the server is running, open your browser and navigate to http://localhost:4200/ to run the application.
+
+## Build for manual deployment
+
+To build the project for deployment (hosting), run:
+
+```bash
+ng build
+```
+
+This output application files will be output to the `dist/` directory.
+
 ## Design and Architecture
 
 This application is built with Angular 19 for the front end, NGXS for State Management, and Tailwind CSS for styling utilities. This application is segmented into different folders to narrow their usage, i.e., `/models` for defining reuseable application and service models, `/state` for containing shared application State, `/components` for rendering custom components.
@@ -100,29 +126,3 @@ Default:
 - Contrast Checker - https://webaim.org/resources/contrastchecker/
 - WCAG best practices - https://www.w3.org/WAI/ARIA/apg/patterns/
 - Google Calendar (for usability ideas) - https://calendar.google.com/
-
-## Local Development
-
-Ensure local dependencies, run:
-
-```base
-npm install
-```
-
-Start the local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`.
-
-## Build and Deployment
-
-To build the project for deployment (hosting), run:
-
-```bash
-ng build
-```
-
-This output application files will be output to the `dist/` directory.
