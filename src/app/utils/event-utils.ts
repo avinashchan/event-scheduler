@@ -1,4 +1,5 @@
-import { EventDetailModel, EventDataModel } from './event-models';
+import { EventDetailModel, EventDataModel } from '../models/event-models';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Converts the service model into an application model.
@@ -35,5 +36,30 @@ export function fromServiceModel(
     endTime: new Date(endTime),
     title,
     description,
+  };
+}
+
+/**
+ * Creates a default event based on the source date/time.
+ * @param sourceDate
+ * @returns
+ */
+export function createEvent(sourceDate: Date): EventDetailModel {
+  // generate a unique id
+  const id = uuidv4();
+  // create a new date starting at the next hour
+  const date = new Date(sourceDate);
+  date.setHours(date.getHours() + 1, 0, 0, 0);
+  const startTime = new Date(date);
+  const endTime = new Date(date);
+  endTime.setHours(date.getHours() + 1);
+
+  return {
+    id,
+    date,
+    startTime,
+    endTime,
+    title: '',
+    description: '',
   };
 }

@@ -1,6 +1,6 @@
-import { Component, DestroyRef, effect, model, signal } from '@angular/core';
+import { Component, DestroyRef, effect, model } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { EventService } from '../../event-service';
+import { EventService } from '../../components/services/event-service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
   EventDetailsComponent,
@@ -9,17 +9,22 @@ import {
 import { EventDetailModel } from '../../models/event-models';
 import { ButtonComponent } from '../../components/button/button.component';
 import { CalendarViewComponent } from '../../components/calendar-view/calendar-view.component';
-import { mergeMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { FormsModule } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
+import { select, Store } from '@ngxs/store';
+import { AppState } from '../../state/app.state';
+import { GetEvents, SetDate } from '../../state/app.actions';
+import { createEvent } from '../../utils/event-utils';
 
 @Component({
   selector: 'app-root',
   imports: [
     RouterOutlet,
+    MatTooltipModule,
     MatDialogModule,
     MatInput,
     MatDatepickerModule,
@@ -33,41 +38,48 @@ import { MatInput } from '@angular/material/input';
 })
 export class AppComponent {
   /** The active date: defaults to today */
-  activeDate = model<Date>(new Date());
+  activeDate = select(AppState.getActiveDate);
 
   /** The events for the active date. */
-  activeEvents = signal<EventDetailModel[]>([]);
+  activeEvents = select(AppState.getActiveEvents);
+
+  dateSelection = model<Date>(new Date());
 
   constructor(
+    private store: Store,
     private destroyRef: DestroyRef,
     private dialog: MatDialog,
     private eventService: EventService
   ) {
     // ensure changes to active date trigger refresh of events list
     effect(() => {
-      this.refreshEvents(this.activeDate());
+      const activeDate = this.activeDate();
+      this.store.dispatch(new GetEvents());
+
+      this.dateSelection.set(activeDate);
+    });
+
+    effect(() => {
+      const dateSelection = this.dateSelection();
+      this.store.dispatch(new SetDate(dateSelection));
     });
   }
 
-  refreshEvents(date: Date) {
-    this.eventService
-      .getEventsByDate(date)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((events) => {
-        this.activeEvents.set(events);
-      });
-  }
-
   handlePrevDayClick() {
-    this.activeDate.update((date) => this.incrementDate(date, -1));
+    const activeDate = this.activeDate();
+    const nextDate = this.incrementDate(activeDate, -1);
+    this.store.dispatch(new SetDate(nextDate));
   }
 
   handleNextDayClick() {
-    this.activeDate.update((date) => this.incrementDate(date, +1));
+    const activeDate = this.activeDate();
+    const nextDate = this.incrementDate(activeDate, +1);
+    this.store.dispatch(new SetDate(nextDate));
   }
 
   handleAddClick() {
-    const blankEvent = this.eventService.createEvent();
+    const activeDate = this.activeDate();
+    const blankEvent = createEvent(activeDate);
     this.editEvent(blankEvent);
   }
 
@@ -86,13 +98,10 @@ export class AppComponent {
         },
       })
       .afterClosed()
-      .pipe(
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         // refresh events
-        mergeMap(() => this.eventService.getEventsByDate(this.activeDate())),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((events) => {
-        this.activeEvents.set(events);
+        this.store.dispatch(new GetEvents());
       });
   }
 

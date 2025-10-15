@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
-import { EventDataModel, EventDetailModel } from './models/event-models';
-import { v4 as uuidv4 } from 'uuid';
-import { fromServiceModel, toServiceModel } from './models/event-utils';
+import { EventDataModel, EventDetailModel } from '../../models/event-models';
+import { fromServiceModel, toServiceModel } from '../../utils/event-utils';
 
 /** Mocked backend store for event CRUD operations. */
 const mockEvents: EventDataModel[] = [];
@@ -14,7 +12,7 @@ const mockEvents: EventDataModel[] = [];
   providedIn: 'root',
 })
 export class EventService {
-  getEventsByDate(date: Date): Observable<EventDetailModel[]> {
+  async getEventsByDate(date: Date): Promise<EventDetailModel[]> {
     // normalize stat date
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
@@ -31,35 +29,16 @@ export class EventService {
    * @param endDate
    * @returns
    */
-  getEvents(startDate: Date, endDate: Date): Observable<EventDetailModel[]> {
-    return of(mockEvents).pipe(
-      // map server models -> app model
-      map((events) => events.map((event) => fromServiceModel(event))),
-      // filter events by date
-      map((events) => {
-        return events.filter(({ date }) => date >= startDate && date < endDate);
-      })
+  async getEvents(startDate: Date, endDate: Date): Promise<EventDetailModel[]> {
+    return (
+      mockEvents
+        // map server models -> app model
+        .map((event) => fromServiceModel(event))
+        // filter events by date
+        .filter(({ date }) => {
+          return date >= startDate && date < endDate;
+        })
     );
-  }
-
-  /** Creates a default (empty) event. */
-  createEvent(): EventDetailModel {
-    const eventId = uuidv4();
-    // create a new date starting at the next hour
-    const eventDate = new Date();
-    eventDate.setHours(eventDate.getHours() + 1, 0, 0, 0);
-    const startTime = new Date(eventDate);
-    const endTime = new Date(eventDate);
-    endTime.setHours(eventDate.getHours() + 1);
-
-    return {
-      id: eventId,
-      date: eventDate,
-      startTime: startTime,
-      endTime: endTime,
-      title: '',
-      description: '',
-    };
   }
 
   /** Adds the event. */
@@ -87,7 +66,7 @@ export class EventService {
    * @param id The id of the event to delete.
    * @returns Returns if the event was found and deleted.
    */
-  deleteEvent(id: string) {
+  async deleteEvent(id: string) {
     const foundIndex = mockEvents.findIndex((event) => event.id === id);
     if (foundIndex > -1) {
       mockEvents.splice(foundIndex, 1);

@@ -5,7 +5,6 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { EventDetailModel } from '../../models/event-models';
-import { EventService } from '../../event-service';
 import {
   FormBuilder,
   FormControl,
@@ -18,6 +17,9 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { ButtonComponent } from '../button/button.component';
+import { Store } from '@ngxs/store';
+import { DeleteEvent, UpdateEvent } from '../../state/app.actions';
+import { firstValueFrom } from 'rxjs';
 
 interface EventDetailForm {
   id: FormControl<string>;
@@ -51,10 +53,10 @@ export class EventDetailsComponent {
   form: FormGroup<EventDetailForm>;
 
   constructor(
+    private store: Store,
     private dialogRef: MatDialogRef<EventDetailsComponent>,
     private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) private data: EventDialogData,
-    private eventService: EventService
+    @Inject(MAT_DIALOG_DATA) private data: EventDialogData
   ) {
     // init form w/ event details
     const { id, date, startTime, endTime, title, description } =
@@ -82,7 +84,7 @@ export class EventDetailsComponent {
     this.close();
   }
 
-  async save() {
+  save() {
     const { id, date, startTime, endTime, title, description } =
       this.form.getRawValue();
 
@@ -96,13 +98,13 @@ export class EventDetailsComponent {
     };
 
     // update/insert event
-    return this.eventService.updateEvent(updatedEvent).then((updated) => {
-      return updated ? updated : this.eventService.addEvent(updatedEvent);
-    });
+    return firstValueFrom(this.store.dispatch(new UpdateEvent(updatedEvent)));
   }
 
-  async delete() {
-    return this.eventService.deleteEvent(this.data.event.id);
+  delete() {
+    return firstValueFrom(
+      this.store.dispatch(new DeleteEvent(this.data.event.id))
+    );
   }
 
   close() {
